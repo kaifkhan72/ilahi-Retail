@@ -1,0 +1,1 @@
+const r=e=>{if(e==null)return"₹0.00";const t=typeof e=="number"?e:parseFloat(e);return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2}).format(t)},n=e=>{if(!e)return"";const t=new Date(e);return new Intl.DateTimeFormat("en-IN",{dateStyle:"medium",timeStyle:"short"}).format(t)};export{n as a,r as f};

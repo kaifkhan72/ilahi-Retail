@@ -1,0 +1,263 @@
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Truck, CheckCircle2, ShoppingBag, ArrowLeft } from 'lucide-react';
+import api from '../../services/api';
+import { useAuthStore } from '../../store/authStore';
+import { useCartStore } from '../../store/cartStore';
+import { formatPrice } from '../../utils/formatters';
+
+const checkoutSchema = z.object({
+  deliveryName: z.string().min(2, 'Name must be at least 2 characters'),
+  deliveryPhone: z.string().min(7, 'Phone number must be at least 7 digits'),
+  deliveryAddress: z.string().min(5, 'Address must be at least 5 characters'),
+  deliveryCity: z.string().min(2, 'City is required'),
+  deliveryPincode: z.string().min(4, 'Valid pincode is required'),
+  deliveryState: z.string().min(2, 'State is required'),
+});
+
+export const CheckoutPage = () => {
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const { items, totalPrice, reset } = useCartStore();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      deliveryName: user?.name || '',
+      deliveryPhone: user?.phone || '',
+      deliveryAddress: '',
+      deliveryCity: '',
+      deliveryPincode: '',
+      deliveryState: '',
+    },
+  });
+
+  if (items.length === 0) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+        <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900">Your cart is empty</h2>
+        <p className="text-sm text-gray-500 mt-2">Add some items before checking out.</p>
+        <Link
+          to="/products"
+          className="inline-block mt-6 px-6 py-2.5 bg-emerald-600 text-white font-semibold text-sm rounded-xl"
+        >
+          Browse Products
+        </Link>
+      </div>
+    );
+  }
+
+  const onSubmit = async (data) => {
+    try {
+      const res = await api.post('/orders/checkout', data);
+      if (res.data?.success) {
+        reset(); // Clear frontend cart store
+        toast.success('Order placed successfully via Cash on Delivery!');
+        navigate('/orders', { replace: true });
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to place order. Check product stock.';
+      toast.error(message);
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <Link
+        to="/cart"
+        className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-emerald-600 transition"
+      >
+        <ArrowLeft className="w-4 h-4 mr-1.5" />
+        Back to cart
+      </Link>
+
+      <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Checkout</h1>
+          <p className="text-sm text-gray-500 mt-1">Provide your shipping address for Cash on Delivery</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Delivery Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center space-x-3 pb-4 border-b border-gray-100">
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900">Delivery Address</h2>
+                <p className="text-xs text-gray-500">Where should we deliver your package?</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  Recipient Full Name *
+                </label>
+                <input
+                  type="text"
+                  {...register('deliveryName')}
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                    errors.deliveryName ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-200'
+                  }`}
+                />
+                {errors.deliveryName && (
+                  <p className="text-xs text-red-500 mt-1">{errors.deliveryName.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  Contact Phone *
+                </label>
+                <input
+                  type="tel"
+                  {...register('deliveryPhone')}
+                  placeholder="9876543210"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                    errors.deliveryPhone ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-200'
+                  }`}
+                />
+                {errors.deliveryPhone && (
+                  <p className="text-xs text-red-500 mt-1">{errors.deliveryPhone.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                Street Address / House No. *
+              </label>
+              <textarea
+                rows={3}
+                {...register('deliveryAddress')}
+                placeholder="House number, apartment name, street, landmark"
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                  errors.deliveryAddress ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-200'
+                }`}
+              />
+              {errors.deliveryAddress && (
+                <p className="text-xs text-red-500 mt-1">{errors.deliveryAddress.message}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  {...register('deliveryCity')}
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                    errors.deliveryCity ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-200'
+                  }`}
+                />
+                {errors.deliveryCity && (
+                  <p className="text-xs text-red-500 mt-1">{errors.deliveryCity.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  Pincode *
+                </label>
+                <input
+                  type="text"
+                  {...register('deliveryPincode')}
+                  placeholder="560001"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                    errors.deliveryPincode ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-200'
+                  }`}
+                />
+                {errors.deliveryPincode && (
+                  <p className="text-xs text-red-500 mt-1">{errors.deliveryPincode.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+                  State *
+                </label>
+                <input
+                  type="text"
+                  {...register('deliveryState')}
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+                    errors.deliveryState ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-200'
+                  }`}
+                />
+                {errors.deliveryState && (
+                  <p className="text-xs text-red-500 mt-1">{errors.deliveryState.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Method Banner */}
+          <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-5 flex items-center space-x-3">
+            <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+            <div>
+              <h4 className="font-bold text-emerald-900 text-sm">Payment Method: Cash on Delivery (COD)</h4>
+              <p className="text-xs text-emerald-700">No online payment required now. Pay cash when package arrives.</p>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition disabled:opacity-50 text-base cursor-pointer"
+          >
+            {isSubmitting ? 'Placing Order...' : `Confirm & Place Order (${formatPrice(totalPrice)})`}
+          </button>
+        </form>
+
+        {/* Order Review Sidebar */}
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-sm h-fit space-y-6">
+          <h2 className="text-xl font-bold text-gray-900">Items in Order</h2>
+
+          <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto space-y-3 pr-1">
+            {items.map((item) => (
+              <div key={item.id} className="pt-3 first:pt-0 flex items-center justify-between text-sm">
+                <div className="pr-3">
+                  <p className="font-semibold text-gray-900 line-clamp-1">{item.productName}</p>
+                  <p className="text-xs text-gray-500">Qty: {item.quantity} × {formatPrice(item.productPrice)}</p>
+                </div>
+                <span className="font-bold text-gray-900 shrink-0">{formatPrice(item.subtotal)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-4 border-t border-gray-200 space-y-2 text-sm text-gray-600">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span className="font-semibold text-gray-900">{formatPrice(totalPrice)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Delivery</span>
+              <span className="text-emerald-600 font-semibold">FREE</span>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-200 flex justify-between items-center text-lg font-bold text-gray-900">
+            <span>Total to Pay (COD)</span>
+            <span className="text-2xl text-emerald-600 font-extrabold">{formatPrice(totalPrice)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CheckoutPage;
