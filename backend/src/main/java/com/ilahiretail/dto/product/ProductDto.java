@@ -18,6 +18,8 @@ public class ProductDto {
     private String name;
     private String description;
     private BigDecimal price;
+    private BigDecimal originalPrice;
+    private Integer discountPercentage;
     private Integer stock;
     private CategoryDto category;
     private String imageUrl;

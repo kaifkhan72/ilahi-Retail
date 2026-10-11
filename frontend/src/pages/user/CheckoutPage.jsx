@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Truck, CheckCircle2, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Truck, CheckCircle2, ShoppingBag, ArrowLeft, Tag, X } from 'lucide-react';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
+import { useCouponStore } from '../../store/couponStore';
 import { formatPrice } from '../../utils/formatters';
 
 const checkoutSchema = z.object({
@@ -23,20 +24,53 @@ export const CheckoutPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const { items, totalPrice, reset } = useCartStore();
+  const { validateCoupon, coupons } = useCouponStore();
+
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+
+  const handleApplyCoupon = (codeToApply) => {
+    const code = (codeToApply || couponCode).trim().toUpperCase();
+    if (!code) return;
+
+    const res = validateCoupon(code, totalPrice);
+    if (!res.valid) {
+      toast.error(res.error);
+      return;
+    }
+
+    setAppliedCoupon({
+      code: res.coupon.code,
+      discount: res.discount,
+      label: res.label,
+    });
+    toast.success(`Coupon ${res.coupon.code} applied! Saved ${formatPrice(res.discount)}`, { icon: '🎉' });
+    setCouponCode('');
+  };
+
+  const savedAddress = React.useMemo(() => {
+    try {
+      const stored = localStorage.getItem('ilahi_saved_delivery_address');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   const {
     register,
     handleSubmit,
+    reset: resetForm,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      deliveryName: user?.name || '',
-      deliveryPhone: user?.phone || '',
-      deliveryAddress: '',
-      deliveryCity: '',
-      deliveryPincode: '',
-      deliveryState: '',
+      deliveryName: savedAddress?.deliveryName || user?.name || '',
+      deliveryPhone: savedAddress?.deliveryPhone || user?.phone || '',
+      deliveryAddress: savedAddress?.deliveryAddress || '',
+      deliveryCity: savedAddress?.deliveryCity || '',
+      deliveryPincode: savedAddress?.deliveryPincode || '',
+      deliveryState: savedAddress?.deliveryState || '',
     },
   });
 
@@ -58,6 +92,13 @@ export const CheckoutPage = () => {
 
   const onSubmit = async (data) => {
     try {
+      // Save address for future fast 1-click checkouts
+      try {
+        localStorage.setItem('ilahi_saved_delivery_address', JSON.stringify(data));
+      } catch (e) {
+        console.error('Failed to save address locally', e);
+      }
+
       const res = await api.post('/orders/checkout', data);
       if (res.data?.success) {
         reset(); // Clear frontend cart store
@@ -100,6 +141,29 @@ export const CheckoutPage = () => {
                 <p className="text-xs text-gray-500">Where should we deliver your package?</p>
               </div>
             </div>
+
+            {savedAddress && (
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-800">
+                <span className="font-medium">✨ Pre-filled with your saved shipping address!</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetForm({
+                      deliveryName: savedAddress.deliveryName || user?.name || '',
+                      deliveryPhone: savedAddress.deliveryPhone || user?.phone || '',
+                      deliveryAddress: savedAddress.deliveryAddress || '',
+                      deliveryCity: savedAddress.deliveryCity || '',
+                      deliveryPincode: savedAddress.deliveryPincode || '',
+                      deliveryState: savedAddress.deliveryState || '',
+                    });
+                    toast.success('Saved address restored');
+                  }}
+                  className="font-bold underline text-emerald-700 hover:text-emerald-900 cursor-pointer"
+                >
+                  Restore Saved
+                </button>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -219,7 +283,7 @@ export const CheckoutPage = () => {
             disabled={isSubmitting}
             className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition disabled:opacity-50 text-base cursor-pointer"
           >
-            {isSubmitting ? 'Placing Order...' : `Confirm & Place Order (${formatPrice(totalPrice)})`}
+            {isSubmitting ? 'Placing Order...' : `Confirm & Place Order (${formatPrice(Math.max(0, totalPrice - (appliedCoupon?.discount || 0)))})`}
           </button>
         </form>
 
@@ -239,20 +303,95 @@ export const CheckoutPage = () => {
             ))}
           </div>
 
+          {/* Coupon Code Section */}
+          <div className="pt-4 border-t border-gray-200 space-y-3">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
+              Have a Promo Code?
+            </label>
+
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs">
+                <div className="flex items-center space-x-2">
+                  <Tag className="w-4 h-4 text-emerald-600" />
+                  <div>
+                    <span className="font-bold text-emerald-900">{appliedCoupon.code}</span>
+                    <span className="text-[11px] text-emerald-700 ml-1.5">({appliedCoupon.label})</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCoupon(null);
+                    toast('Coupon removed', { icon: 'ℹ️' });
+                  }}
+                  className="p-1 text-gray-400 hover:text-red-500 rounded-full transition"
+                  title="Remove coupon"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="Enter ILAHI10 or FLAT100"
+                    className="flex-1 px-3.5 py-2 text-xs uppercase rounded-xl border border-gray-300 focus:border-emerald-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon()}
+                    className="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                  >
+                    Apply
+                  </button>
+                </div>
+
+                {/* Quick Suggestion Chips */}
+                <div className="flex items-center space-x-2 pt-1 flex-wrap gap-1">
+                  <span className="text-[10px] text-gray-400">Try:</span>
+                  {coupons
+                    .filter((c) => c.active)
+                    .slice(0, 4)
+                    .map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => handleApplyCoupon(c.code)}
+                        className="px-2 py-0.5 text-[10px] font-bold bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 rounded-md border border-gray-200 transition cursor-pointer"
+                      >
+                        {c.code}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="pt-4 border-t border-gray-200 space-y-2 text-sm text-gray-600">
             <div className="flex justify-between">
               <span>Subtotal</span>
               <span className="font-semibold text-gray-900">{formatPrice(totalPrice)}</span>
             </div>
+            {appliedCoupon && (
+              <div className="flex justify-between text-emerald-600 font-semibold">
+                <span>Coupon Discount ({appliedCoupon.code})</span>
+                <span>-{formatPrice(appliedCoupon.discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span>Delivery</span>
-              <span className="text-emerald-600 font-semibold">FREE</span>
+              <span className="text-emerald-600 font-semibold">FREE (Cash on Delivery)</span>
             </div>
           </div>
 
           <div className="pt-4 border-t border-gray-200 flex justify-between items-center text-lg font-bold text-gray-900">
             <span>Total to Pay (COD)</span>
-            <span className="text-2xl text-emerald-600 font-extrabold">{formatPrice(totalPrice)}</span>
+            <span className="text-2xl text-emerald-600 font-extrabold">
+              {formatPrice(Math.max(0, totalPrice - (appliedCoupon?.discount || 0)))}
+            </span>
           </div>
         </div>
       </div>

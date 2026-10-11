@@ -5,6 +5,8 @@ import { AppRoutes } from './routes/AppRoutes';
 import { useAuthStore } from './store/authStore';
 import { useCartStore } from './store/cartStore';
 
+import { CartDrawer } from './components/CartDrawer';
+
 export function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -35,6 +37,7 @@ export function App() {
           },
         }}
       />
+      <CartDrawer />
       <AppRoutes />
     </BrowserRouter>
   );

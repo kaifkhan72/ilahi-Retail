@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,6 +99,7 @@ public class ProductServiceImpl implements ProductService {
                 .name(request.getName().trim())
                 .description(request.getDescription())
                 .price(request.getPrice())
+                .originalPrice(request.getOriginalPrice())
                 .stock(request.getStock())
                 .category(category)
                 .imageUrl(request.getImageUrl())
@@ -118,6 +121,7 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName().trim());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
+        product.setOriginalPrice(request.getOriginalPrice());
         product.setStock(request.getStock());
         product.setCategory(category);
         if (request.getImageUrl() != null) {
@@ -161,11 +165,21 @@ public class ProductServiceImpl implements ProductService {
                     .build();
         }
 
+        Integer discountPercentage = null;
+        if (product.getOriginalPrice() != null && product.getPrice() != null 
+                && product.getOriginalPrice().compareTo(product.getPrice()) > 0) {
+            BigDecimal diff = product.getOriginalPrice().subtract(product.getPrice());
+            discountPercentage = diff.multiply(BigDecimal.valueOf(100))
+                    .divide(product.getOriginalPrice(), 0, RoundingMode.HALF_UP).intValue();
+        }
+
         return ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .originalPrice(product.getOriginalPrice())
+                .discountPercentage(discountPercentage)
                 .stock(product.getStock())
                 .category(categoryDto)
                 .imageUrl(product.getImageUrl())

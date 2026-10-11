@@ -7,7 +7,9 @@ import {
   ShoppingCart, 
   Users, 
   Store, 
-  LogOut 
+  LogOut,
+  Sliders,
+  Ticket
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
@@ -26,6 +28,8 @@ export const AdminSidebar = () => {
     { name: 'Categories', path: '/admin/categories', icon: Tag },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     { name: 'Customers', path: '/admin/customers', icon: Users },
+    { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
+    { name: 'Website Settings', path: '/admin/settings', icon: Sliders },
   ];
 
   return (

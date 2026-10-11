@@ -16,6 +16,7 @@ const HomePage = React.lazy(() => import('../pages/user/HomePage'));
 const ProductsPage = React.lazy(() => import('../pages/user/ProductsPage'));
 const ProductDetailPage = React.lazy(() => import('../pages/user/ProductDetailPage'));
 const CartPage = React.lazy(() => import('../pages/user/CartPage'));
+const WishlistPage = React.lazy(() => import('../pages/user/WishlistPage'));
 const CheckoutPage = React.lazy(() => import('../pages/user/CheckoutPage'));
 const OrdersPage = React.lazy(() => import('../pages/user/OrdersPage'));
 
@@ -25,6 +26,8 @@ const AdminProductsPage = React.lazy(() => import('../pages/admin/AdminProductsP
 const AdminCategoriesPage = React.lazy(() => import('../pages/admin/AdminCategoriesPage'));
 const AdminOrdersPage = React.lazy(() => import('../pages/admin/AdminOrdersPage'));
 const AdminCustomersPage = React.lazy(() => import('../pages/admin/AdminCustomersPage'));
+const AdminCouponsPage = React.lazy(() => import('../pages/admin/AdminCouponsPage'));
+const AdminSettingsPage = React.lazy(() => import('../pages/admin/AdminSettingsPage'));
 
 export const AppRoutes = () => {
   return (
@@ -42,6 +45,7 @@ export const AppRoutes = () => {
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
@@ -65,6 +69,8 @@ export const AppRoutes = () => {
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="customers" element={<AdminCustomersPage />} />
+            <Route path="coupons" element={<AdminCouponsPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
         </Route>
 

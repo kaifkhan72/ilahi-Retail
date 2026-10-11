@@ -6,6 +6,11 @@ export const useCartStore = create((set, get) => ({
   totalPrice: 0,
   totalItems: 0,
   isLoading: false,
+  isDrawerOpen: false,
+
+  openDrawer: () => set({ isDrawerOpen: true }),
+  closeDrawer: () => set({ isDrawerOpen: false }),
+  toggleDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
 
   fetchCart: async () => {
     try {
@@ -26,7 +31,7 @@ export const useCartStore = create((set, get) => ({
     }
   },
 
-  addToCart: async (productId, quantity = 1) => {
+  addToCart: async (productId, quantity = 1, openDrawerImmediately = true) => {
     const res = await api.post('/cart/items', { productId, quantity });
     if (res.data?.success) {
       const cart = res.data.data;
@@ -34,6 +39,7 @@ export const useCartStore = create((set, get) => ({
         items: cart.items || [],
         totalPrice: cart.totalPrice || 0,
         totalItems: cart.totalItems || 0,
+        ...(openDrawerImmediately ? { isDrawerOpen: true } : {}),
       });
     }
   },

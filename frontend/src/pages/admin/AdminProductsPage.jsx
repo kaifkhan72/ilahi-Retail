@@ -97,6 +97,7 @@ export const AdminProductsPage = () => {
       name: '',
       categoryId: categories[0]?.id || '',
       price: '',
+      originalPrice: '',
       stock: 10,
       description: '',
       imageUrl: '',
@@ -111,6 +112,7 @@ export const AdminProductsPage = () => {
       name: product.name,
       categoryId: product.category?.id || '',
       price: product.price,
+      originalPrice: product.originalPrice || '',
       stock: product.stock,
       description: product.description || '',
       imageUrl: product.imageUrl || '',
@@ -154,6 +156,7 @@ export const AdminProductsPage = () => {
       name: formData.name.trim(),
       categoryId: Number(formData.categoryId),
       price: Number(formData.price),
+      originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
       stock: Number(formData.stock),
       description: formData.description,
       imageUrl: formData.imageUrl || null,
@@ -204,6 +207,19 @@ export const AdminProductsPage = () => {
       fetchProducts();
     } catch (err) {
       toast.error('Failed to update stock');
+    }
+  };
+
+  const handleQuickStockAdjust = async (productId, currentStock, delta) => {
+    const updated = Math.max(0, currentStock + delta);
+    try {
+      await api.patch(`/admin/products/${productId}/stock`, { stock: updated });
+      toast.success(`Stock updated to ${updated}`);
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, stock: updated } : p))
+      );
+    } catch (err) {
+      toast.error('Failed to adjust stock');
     }
   };
 
@@ -299,19 +315,48 @@ export const AdminProductsPage = () => {
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 font-bold text-gray-900 text-sm">
-                      {formatPrice(product.price)}
+                    <td className="py-3.5 px-4">
+                      <span className="font-bold text-gray-900 text-sm">
+                        {formatPrice(product.price)}
+                      </span>
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <div className="flex items-center space-x-1.5 mt-0.5">
+                          <span className="text-[11px] text-gray-400 line-through">
+                            {formatPrice(product.originalPrice)}
+                          </span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded">
+                            {product.discountPercentage || Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <button
-                        onClick={() => handleOpenStockModal(product)}
-                        className="inline-flex items-center px-2 py-1 rounded-lg border border-gray-200 hover:border-emerald-500 font-bold text-gray-700 hover:text-emerald-600 transition cursor-pointer"
-                        title="Click to update inventory stock"
-                      >
-                        <Boxes className="w-3.5 h-3.5 mr-1 text-gray-400" />
-                        {product.stock}
-                      </button>
+                      <div className="flex items-center space-x-1.5">
+                        <button
+                          onClick={() => handleOpenStockModal(product)}
+                          className={`inline-flex items-center px-2 py-1 rounded-lg border font-bold text-xs transition cursor-pointer ${
+                            product.stock <= 5
+                              ? 'border-amber-300 bg-amber-50 text-amber-800'
+                              : 'border-gray-200 hover:border-emerald-500 text-gray-700 hover:text-emerald-600'
+                          }`}
+                          title="Click to edit stock"
+                        >
+                          <Boxes className="w-3.5 h-3.5 mr-1 text-gray-400" />
+                          <span>{product.stock}</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleQuickStockAdjust(product.id, product.stock, 5)}
+                          className="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded border border-emerald-200 transition cursor-pointer"
+                          title="Quick add +5 stock"
+                        >
+                          +5
+                        </button>
+                      </div>
+                      {product.stock <= 5 && (
+                        <span className="text-[10px] text-amber-600 font-bold block mt-0.5">Low Stock</span>
+                      )}
                     </td>
 
                     <td className="py-3.5 px-4">
@@ -388,14 +433,14 @@ export const AdminProductsPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block font-bold text-gray-700 mb-1">Category *</label>
                   <select
                     required
                     value={formData.categoryId}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:outline-none bg-white cursor-pointer"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:outline-none bg-white cursor-pointer text-xs"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -406,7 +451,7 @@ export const AdminProductsPage = () => {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Price (₹ INR) *</label>
+                  <label className="block font-bold text-gray-700 mb-1">Selling Price (₹) *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -414,8 +459,21 @@ export const AdminProductsPage = () => {
                     required
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="999.00"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:outline-none"
+                    placeholder="799.00"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:outline-none text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">Original MRP (₹)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    value={formData.originalPrice}
+                    onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                    placeholder="1199.00"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-emerald-500 focus:outline-none text-xs"
                   />
                 </div>
               </div>

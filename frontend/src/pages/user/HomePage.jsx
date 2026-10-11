@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, ChefHat, Shirt, Gamepad2, ShoppingBag } from 'lucide-react';
 import api from '../../services/api';
 import { ProductCard } from '../../components/ProductCard';
+import { useSettingsStore } from '../../store/settingsStore';
 
 export const HomePage = () => {
+  const settings = useSettingsStore((state) => state.settings) || {};
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,20 +61,26 @@ export const HomePage = () => {
   return (
     <div className="space-y-16 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-900 to-gray-900 text-white py-20 px-4 sm:px-6 lg:px-8">
+      <section 
+        className="relative overflow-hidden bg-cover bg-center text-white py-20 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundImage: `linear-gradient(rgba(6, 78, 59, 0.88), rgba(17, 24, 39, 0.94)), url('${settings.heroBgImage || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200'}')`
+        }}
+      >
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 text-center lg:text-left">
-            <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-800/60 border border-emerald-600/40 text-emerald-300 text-xs font-semibold tracking-wide uppercase">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold tracking-wide uppercase">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Premium Everyday Essentials</span>
+              <span>{settings.heroBadge || 'Premium Everyday Essentials'}</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-              Toys, Kitchen & Clothes at <span className="text-emerald-400">Ilahi Retail</span>
+              {settings.heroTitle || 'Toys, Kitchen & Clothes at'}{' '}
+              <span className="text-emerald-400">{settings.heroTitleHighlight || 'Ilahi Retail'}</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-gray-300 max-w-xl mx-auto lg:mx-0">
-              Discover our carefully curated collection for your family and home. Enjoy honest prices and safe Cash on Delivery.
+            <p className="text-base sm:text-lg text-gray-200 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              {settings.heroSubtitle || 'Discover our carefully curated collection for your family and home. Enjoy honest prices and safe Cash on Delivery.'}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
