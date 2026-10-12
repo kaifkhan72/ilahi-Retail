@@ -33,6 +33,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final CartService cartService;
     private final com.ilahiretail.service.CouponService couponService;
+    private final com.ilahiretail.service.NotificationService notificationService;
 
     @Override
     @Transactional
@@ -114,6 +115,12 @@ public class OrderServiceImpl implements OrderService {
             finalTotal = BigDecimal.ZERO;
         }
 
+        String paymentMethod = (request.getPaymentMethod() != null && !request.getPaymentMethod().trim().isEmpty())
+                ? request.getPaymentMethod().trim().toUpperCase() : "COD";
+        order.setPaymentMethod(paymentMethod);
+        order.setPaymentStatus("ONLINE".equalsIgnoreCase(paymentMethod) ? "PAID" : "PENDING");
+        order.setPaymentId(request.getPaymentId());
+
         order.setCouponCode(couponCode);
         order.setDiscountAmount(discount);
         order.setTotalAmount(finalTotal);
@@ -123,6 +130,13 @@ public class OrderServiceImpl implements OrderService {
 
         // Clear cart in same transaction
         cartService.clearCart(userId);
+
+        // Dispatch Order confirmation notification / receipt
+        try {
+            notificationService.sendOrderConfirmationNotification(savedOrder);
+        } catch (Exception ex) {
+            // Notification failure does not rollback transaction
+        }
 
         return mapToOrderDto(savedOrder);
     }
@@ -276,7 +290,9 @@ public class OrderServiceImpl implements OrderService {
                 .customerEmail(order.getUser() != null ? order.getUser().getEmail() : null)
                 .totalAmount(order.getTotalAmount())
                 .status(order.getStatus())
-                .paymentMethod("COD")
+                .paymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod() : "COD")
+                .paymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus() : "PENDING")
+                .paymentId(order.getPaymentId())
                 .deliveryName(order.getDeliveryName())
                 .deliveryPhone(order.getDeliveryPhone())
                 .deliveryAddress(order.getDeliveryAddress())

@@ -21,7 +21,9 @@ public class OrderDto {
     private String customerEmail;
     private BigDecimal totalAmount;
     private OrderStatus status;
-    private String paymentMethod; // Always "COD"
+    private String paymentMethod;
+    private String paymentStatus;
+    private String paymentId;
 
     private String deliveryName;
     private String deliveryPhone;

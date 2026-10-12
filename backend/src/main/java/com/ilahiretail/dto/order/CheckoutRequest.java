@@ -35,4 +35,6 @@ public class CheckoutRequest {
     private String deliveryState;
 
     private String couponCode;
+    private String paymentMethod; // "COD" or "ONLINE"
+    private String paymentId;
 }

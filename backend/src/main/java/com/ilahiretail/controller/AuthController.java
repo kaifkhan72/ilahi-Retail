@@ -58,4 +58,20 @@ public class AuthController {
         authService.logout(refreshToken, response);
         return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
     }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request 6-digit password reset OTP to email")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
+            @Valid @RequestBody com.ilahiretail.dto.auth.ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("If your email is registered, a 6-digit verification code has been dispatched."));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using OTP code")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Valid @RequestBody com.ilahiretail.dto.auth.ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password has been reset successfully. You can now login."));
+    }
 }

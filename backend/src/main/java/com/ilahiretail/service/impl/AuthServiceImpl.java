@@ -44,6 +44,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final com.ilahiretail.repository.PasswordResetOtpRepository passwordResetOtpRepository;
+    private final com.ilahiretail.service.NotificationService notificationService;
 
     @Value("${app.jwt.refresh-token-expiration-ms:604800000}")
     private long refreshTokenExpirationMs;
@@ -215,6 +217,45 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Error hashing token", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(com.ilahiretail.dto.auth.ForgotPasswordRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        // Check if user exists
+        userRepository.findByEmail(email).ifPresent(user -> {
+            String otpCode = String.format("%06d", new java.security.SecureRandom().nextInt(1000000));
+            com.ilahiretail.entity.PasswordResetOtp otp = com.ilahiretail.entity.PasswordResetOtp.builder()
+                    .email(email)
+                    .otpCode(otpCode)
+                    .expiryTime(java.time.LocalDateTime.now().plusMinutes(15))
+                    .used(false)
+                    .build();
+            passwordResetOtpRepository.save(otp);
+            notificationService.sendPasswordResetOtpNotification(email, otpCode);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(com.ilahiretail.dto.auth.ResetPasswordRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        String otpCode = request.getOtpCode().trim();
+
+        com.ilahiretail.entity.PasswordResetOtp otp = passwordResetOtpRepository
+                .findTopByEmailAndOtpCodeAndUsedFalseAndExpiryTimeAfterOrderByCreatedAtDesc(
+                        email, otpCode, java.time.LocalDateTime.now())
+                .orElseThrow(() -> new BadRequestException("Invalid or expired OTP code"));
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        otp.setUsed(true);
+        passwordResetOtpRepository.save(otp);
     }
 
     private UserSummaryDto mapToUserSummary(User user) {

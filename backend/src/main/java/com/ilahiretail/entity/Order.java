@@ -69,6 +69,17 @@ public class Order {
     @Column(name = "order_notes", columnDefinition = "TEXT")
     private String orderNotes;
 
+    @Column(name = "payment_method", length = 30)
+    @Builder.Default
+    private String paymentMethod = "COD";
+
+    @Column(name = "payment_status", length = 30)
+    @Builder.Default
+    private String paymentStatus = "PENDING";
+
+    @Column(name = "payment_id", length = 100)
+    private String paymentId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();

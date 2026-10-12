@@ -9,6 +9,8 @@ public interface AuthService {
     AuthResponse refreshToken(String rawRefreshToken, HttpServletResponse response);
     void logout(String rawRefreshToken, HttpServletResponse response);
     void changePassword(Long userId, ChangePasswordRequest request);
+    void forgotPassword(ForgotPasswordRequest request);
+    void resetPassword(ResetPasswordRequest request);
     UserSummaryDto getUserProfile(Long userId);
     UserSummaryDto updateUserProfile(Long userId, UpdateProfileRequest request);
 }

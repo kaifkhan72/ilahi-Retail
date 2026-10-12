@@ -23,8 +23,10 @@ C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahireta
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\ApiResponse.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\AuthResponse.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\ChangePasswordRequest.java
+C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\ForgotPasswordRequest.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\LoginRequest.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\RegisterRequest.java
+C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\ResetPasswordRequest.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\UpdateProfileRequest.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\auth\UserSummaryDto.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\dto\cart\AddToCartRequest.java
@@ -55,6 +57,7 @@ C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahireta
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\Order.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\OrderItem.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\OrderStatus.java
+C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\PasswordResetOtp.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\Product.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\ProductReview.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\entity\RefreshToken.java
@@ -73,6 +76,7 @@ C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahireta
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\CouponRepository.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\OrderItemRepository.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\OrderRepository.java
+C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\PasswordResetOtpRepository.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\ProductRepository.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\ProductReviewRepository.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\repository\RefreshTokenRepository.java
@@ -95,11 +99,13 @@ C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahireta
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\CategoryServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\CouponServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\FileStorageServiceImpl.java
+C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\NotificationServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\OrderServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\ProductReviewServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\ProductServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\StoreSettingServiceImpl.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\impl\WishlistServiceImpl.java
+C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\NotificationService.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\OrderService.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\ProductReviewService.java
 C:\Users\rajuk\OneDrive\Desktop\ilahi Retail\backend\src\main\java\com\ilahiretail\service\ProductService.java

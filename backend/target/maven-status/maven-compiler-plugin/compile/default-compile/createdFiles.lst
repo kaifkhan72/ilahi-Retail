@@ -1,9 +1,11 @@
+com\ilahiretail\dto\auth\ForgotPasswordRequest$ForgotPasswordRequestBuilder.class
 com\ilahiretail\dto\product\ProductCreateRequest.class
 com\ilahiretail\dto\auth\UpdateProfileRequest.class
 com\ilahiretail\entity\Cart.class
 com\ilahiretail\service\StoreSettingService.class
 com\ilahiretail\entity\RefreshToken.class
 com\ilahiretail\repository\ProductReviewRepository.class
+com\ilahiretail\dto\auth\ForgotPasswordRequest.class
 com\ilahiretail\controller\admin\FileUploadController.class
 com\ilahiretail\dto\product\ProductDto.class
 com\ilahiretail\dto\review\ProductReviewRequest$ProductReviewRequestBuilder.class
@@ -18,11 +20,13 @@ com\ilahiretail\service\impl\StoreSettingServiceImpl.class
 com\ilahiretail\controller\WishlistController.class
 com\ilahiretail\dto\auth\UpdateProfileRequest$UpdateProfileRequestBuilder.class
 com\ilahiretail\dto\order\OrderStatusUpdateRequest$OrderStatusUpdateRequestBuilder.class
+com\ilahiretail\dto\auth\ResetPasswordRequest$ResetPasswordRequestBuilder.class
 com\ilahiretail\entity\StoreSetting$StoreSettingBuilder.class
 com\ilahiretail\dto\auth\ChangePasswordRequest.class
 com\ilahiretail\controller\ProductController.class
 com\ilahiretail\security\CustomUserDetailsService.class
 com\ilahiretail\controller\CartController.class
+com\ilahiretail\service\NotificationService.class
 com\ilahiretail\entity\WishlistItem.class
 com\ilahiretail\security\SecurityConfig.class
 com\ilahiretail\dto\cart\UpdateCartItemRequest.class
@@ -46,6 +50,7 @@ com\ilahiretail\dto\review\ProductReviewDto.class
 com\ilahiretail\repository\RefreshTokenRepository.class
 com\ilahiretail\entity\RefreshToken$RefreshTokenBuilder.class
 com\ilahiretail\service\impl\OrderServiceImpl.class
+com\ilahiretail\repository\PasswordResetOtpRepository.class
 com\ilahiretail\dto\order\OrderItemDto.class
 com\ilahiretail\controller\CouponController.class
 com\ilahiretail\controller\StoreSettingController.class
@@ -57,6 +62,7 @@ com\ilahiretail\dto\auth\LoginRequest.class
 com\ilahiretail\service\ProductService.class
 com\ilahiretail\dto\coupon\CouponValidateResponse.class
 com\ilahiretail\dto\order\OrderStatusUpdateRequest.class
+com\ilahiretail\service\impl\NotificationServiceImpl.class
 com\ilahiretail\dto\order\OrderDto$OrderDtoBuilder.class
 com\ilahiretail\security\JwtUtils.class
 com\ilahiretail\controller\admin\AdminCategoryController.class
@@ -71,6 +77,7 @@ com\ilahiretail\dto\order\OrderDto.class
 com\ilahiretail\controller\AuthController.class
 com\ilahiretail\dto\review\ProductReviewDto$ProductReviewDtoBuilder.class
 com\ilahiretail\entity\Role$RoleBuilder.class
+com\ilahiretail\dto\auth\ResetPasswordRequest.class
 com\ilahiretail\dto\cart\CartDto$CartDtoBuilder.class
 com\ilahiretail\dto\auth\UserSummaryDto.class
 com\ilahiretail\entity\Cart$CartBuilder.class
@@ -78,6 +85,7 @@ com\ilahiretail\dto\auth\LoginRequest$LoginRequestBuilder.class
 com\ilahiretail\dto\order\OrderItemDto$OrderItemDtoBuilder.class
 com\ilahiretail\dto\auth\RegisterRequest.class
 com\ilahiretail\entity\OrderStatus.class
+com\ilahiretail\entity\PasswordResetOtp$PasswordResetOtpBuilder.class
 com\ilahiretail\dto\admin\CustomerSummaryDto.class
 com\ilahiretail\dto\auth\AuthResponse$AuthResponseBuilder.class
 com\ilahiretail\dto\admin\CustomerSummaryDto$CustomerSummaryDtoBuilder.class
@@ -97,6 +105,7 @@ com\ilahiretail\security\JwtAuthenticationFilter.class
 com\ilahiretail\dto\cart\AddToCartRequest$AddToCartRequestBuilder.class
 com\ilahiretail\dto\product\StockUpdateRequest.class
 com\ilahiretail\service\ProductReviewService.class
+com\ilahiretail\entity\PasswordResetOtp.class
 com\ilahiretail\controller\CategoryController.class
 com\ilahiretail\entity\Category.class
 com\ilahiretail\entity\CartItem$CartItemBuilder.class
