@@ -7,21 +7,28 @@ import { useCartStore } from './store/cartStore';
 
 import { CartDrawer } from './components/CartDrawer';
 
+import { useSettingsStore } from './store/settingsStore';
+import { useWishlistStore } from './store/wishlistStore';
+
 export function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const fetchCart = useCartStore((state) => state.fetchCart);
+  const fetchSettings = useSettingsStore((state) => state.fetchSettings);
+  const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
 
   useEffect(() => {
     // Attempt silent refresh on initial load to restore session from cookie
     checkAuth();
-  }, [checkAuth]);
+    fetchSettings();
+  }, [checkAuth, fetchSettings]);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchCart();
+      fetchWishlist();
     }
-  }, [isAuthenticated, fetchCart]);
+  }, [isAuthenticated, fetchCart, fetchWishlist]);
 
   return (
     <BrowserRouter>

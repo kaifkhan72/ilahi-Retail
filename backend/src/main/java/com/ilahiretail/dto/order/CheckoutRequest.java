@@ -33,4 +33,6 @@ public class CheckoutRequest {
 
     @NotBlank(message = "State is required")
     private String deliveryState;
+
+    private String couponCode;
 }

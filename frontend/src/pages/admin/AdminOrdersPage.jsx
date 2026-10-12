@@ -83,15 +83,9 @@ export const AdminOrdersPage = () => {
   useEffect(() => {
     if (activeOrder) {
       const existing = orderMetadata[activeOrder.id];
-      if (existing) {
-        setCourierName(existing.courierName || 'Delhivery');
-        setTrackingAwb(existing.trackingAwb || '');
-        setOrderNotes(existing.notes || '');
-      } else {
-        setCourierName('Delhivery');
-        setTrackingAwb('');
-        setOrderNotes('');
-      }
+      setCourierName(activeOrder.courierName || existing?.courierName || 'Delhivery');
+      setTrackingAwb(activeOrder.trackingNumber || existing?.trackingAwb || '');
+      setOrderNotes(activeOrder.orderNotes || existing?.notes || '');
     }
   }, [activeOrder, orderMetadata]);
 
@@ -112,11 +106,27 @@ export const AdminOrdersPage = () => {
     }
   };
 
-  const handleSaveTracking = (e) => {
+  const handleSaveTracking = async (e) => {
     e.preventDefault();
     if (!activeOrder) return;
-    setOrderTracking(activeOrder.id, courierName, trackingAwb, orderNotes);
-    toast.success(`Courier tracking details saved for Order #${activeOrder.id}`, { icon: '🚚' });
+    try {
+      await api.patch(`/admin/orders/${activeOrder.id}/tracking`, {
+        courierName,
+        trackingNumber: trackingAwb,
+        orderNotes,
+      });
+      setOrderTracking(activeOrder.id, courierName, trackingAwb, orderNotes);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === activeOrder.id
+            ? { ...o, courierName, trackingNumber: trackingAwb, orderNotes }
+            : o
+        )
+      );
+      toast.success(`Courier tracking details saved for Order #${activeOrder.id}`, { icon: '🚚' });
+    } catch (err) {
+      toast.error('Failed to save tracking details');
+    }
   };
 
   // Client-side search filtering across Order ID, Name, Phone, and City

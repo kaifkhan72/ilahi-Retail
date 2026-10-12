@@ -32,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CartService cartService;
+    private final com.ilahiretail.service.CouponService couponService;
 
     @Override
     @Transactional
@@ -98,7 +99,24 @@ public class OrderServiceImpl implements OrderService {
             orderItems.add(orderItem);
         }
 
-        order.setTotalAmount(calculatedTotal);
+        BigDecimal discount = BigDecimal.ZERO;
+        String couponCode = null;
+        if (request.getCouponCode() != null && !request.getCouponCode().trim().isEmpty()) {
+            com.ilahiretail.dto.coupon.CouponValidateResponse val = couponService.validateCoupon(request.getCouponCode(), calculatedTotal);
+            if (val.isValid() && val.getDiscount() != null) {
+                discount = val.getDiscount();
+                couponCode = val.getCode();
+            }
+        }
+
+        BigDecimal finalTotal = calculatedTotal.subtract(discount);
+        if (finalTotal.compareTo(BigDecimal.ZERO) < 0) {
+            finalTotal = BigDecimal.ZERO;
+        }
+
+        order.setCouponCode(couponCode);
+        order.setDiscountAmount(discount);
+        order.setTotalAmount(finalTotal);
         order.setItems(orderItems);
 
         Order savedOrder = orderRepository.save(order);
@@ -190,6 +208,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
+    public OrderDto updateOrderTracking(Long orderId, com.ilahiretail.dto.order.OrderTrackingUpdateRequest request) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+
+        if (request.getCourierName() != null) {
+            order.setCourierName(request.getCourierName().trim());
+        }
+        if (request.getTrackingNumber() != null) {
+            order.setTrackingNumber(request.getTrackingNumber().trim());
+        }
+        if (request.getOrderNotes() != null) {
+            order.setOrderNotes(request.getOrderNotes().trim());
+        }
+
+        return mapToOrderDto(orderRepository.save(order));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public AdminDashboardDto getDashboardStats() {
         long totalOrders = orderRepository.count();
@@ -246,6 +283,11 @@ public class OrderServiceImpl implements OrderService {
                 .deliveryCity(order.getDeliveryCity())
                 .deliveryPincode(order.getDeliveryPincode())
                 .deliveryState(order.getDeliveryState())
+                .couponCode(order.getCouponCode())
+                .discountAmount(order.getDiscountAmount())
+                .courierName(order.getCourierName())
+                .trackingNumber(order.getTrackingNumber())
+                .orderNotes(order.getOrderNotes())
                 .items(itemDtos)
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())

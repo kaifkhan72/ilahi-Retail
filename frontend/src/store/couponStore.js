@@ -1,18 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import api from '../services/api';
 
 const INITIAL_COUPONS = [
   {
-    id: '1',
+    id: 1,
     code: 'ILAHI10',
-    type: 'PERCENTAGE', // 'PERCENTAGE' or 'FLAT'
+    type: 'PERCENTAGE',
     value: 10,
     minOrder: 0,
     active: true,
     description: '10% Storewide Discount on all items',
   },
   {
-    id: '2',
+    id: 2,
     code: 'FLAT100',
     type: 'FLAT',
     value: 100,
@@ -21,7 +22,7 @@ const INITIAL_COUPONS = [
     description: '₹100 Flat Savings on orders over ₹500',
   },
   {
-    id: '3',
+    id: 3,
     code: 'FIRSTORDER',
     type: 'PERCENTAGE',
     value: 15,
@@ -35,34 +36,114 @@ export const useCouponStore = create(
   persist(
     (set, get) => ({
       coupons: INITIAL_COUPONS,
+      loading: false,
 
-      addCoupon: (newCoupon) => {
-        const id = Date.now().toString();
-        const formatted = {
-          ...newCoupon,
-          id,
-          code: newCoupon.code.trim().toUpperCase(),
-          value: Number(newCoupon.value),
-          minOrder: Number(newCoupon.minOrder || 0),
-          active: true,
-        };
-        set((state) => ({
-          coupons: [formatted, ...state.coupons],
-        }));
+      fetchCoupons: async () => {
+        try {
+          const res = await api.get('/coupons');
+          if (res.data?.success && Array.isArray(res.data.data)) {
+            const mapped = res.data.data.map((c) => ({
+              id: c.id,
+              code: c.code,
+              type: c.discountType,
+              value: Number(c.discountValue),
+              minOrder: Number(c.minOrderAmount || 0),
+              active: c.active,
+              description: c.description,
+            }));
+            set({ coupons: mapped });
+          }
+        } catch (e) {
+          console.error('Failed to load coupons from API', e);
+        }
       },
 
-      toggleCoupon: (id) => {
+      fetchAdminCoupons: async () => {
+        try {
+          const res = await api.get('/admin/coupons');
+          if (res.data?.success && Array.isArray(res.data.data)) {
+            const mapped = res.data.data.map((c) => ({
+              id: c.id,
+              code: c.code,
+              type: c.discountType,
+              value: Number(c.discountValue),
+              minOrder: Number(c.minOrderAmount || 0),
+              active: c.active,
+              description: c.description,
+            }));
+            set({ coupons: mapped });
+          }
+        } catch (e) {
+          console.error('Failed to load admin coupons from API', e);
+        }
+      },
+
+      addCoupon: async (newCoupon) => {
+        const payload = {
+          code: newCoupon.code.trim().toUpperCase(),
+          discountType: newCoupon.type || 'PERCENTAGE',
+          discountValue: Number(newCoupon.value),
+          minOrderAmount: Number(newCoupon.minOrder || 0),
+          active: true,
+          description: newCoupon.description || '',
+        };
+
+        try {
+          const res = await api.post('/admin/coupons', payload);
+          if (res.data?.success && res.data.data) {
+            const c = res.data.data;
+            const formatted = {
+              id: c.id,
+              code: c.code,
+              type: c.discountType,
+              value: Number(c.discountValue),
+              minOrder: Number(c.minOrderAmount || 0),
+              active: c.active,
+              description: c.description,
+            };
+            set((state) => ({ coupons: [formatted, ...state.coupons] }));
+            return formatted;
+          }
+        } catch (err) {
+          console.error('Failed to save coupon to server', err);
+          // Fallback optimistic
+          const fallback = {
+            ...newCoupon,
+            id: Date.now(),
+            code: payload.code,
+            type: payload.discountType,
+            value: payload.discountValue,
+            minOrder: payload.minOrderAmount,
+            active: true,
+          };
+          set((state) => ({ coupons: [fallback, ...state.coupons] }));
+        }
+      },
+
+      toggleCoupon: async (id) => {
         set((state) => ({
           coupons: state.coupons.map((c) =>
             c.id === id ? { ...c, active: !c.active } : c
           ),
         }));
+
+        try {
+          await api.patch(`/admin/coupons/${id}/toggle`);
+        } catch (err) {
+          console.error('Failed to toggle coupon on server', err);
+        }
       },
 
-      deleteCoupon: (id) => {
+      deleteCoupon: async (id) => {
         set((state) => ({
           coupons: state.coupons.filter((c) => c.id !== id),
         }));
+
+        try {
+          await api.delete(`/admin/coupons/${id}`);
+        } catch (err) {
+          console.error('Failed to delete coupon on server', err);
+        }
       },
 
       validateCoupon: (code, orderAmount) => {

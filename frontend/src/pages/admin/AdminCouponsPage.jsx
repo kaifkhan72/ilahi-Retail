@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { 
   Tag, 
   Plus, 
@@ -19,7 +19,11 @@ import { useCouponStore } from '../../store/couponStore';
 import { formatPrice } from '../../utils/formatters';
 
 export const AdminCouponsPage = () => {
-  const { coupons, addCoupon, toggleCoupon, deleteCoupon } = useCouponStore();
+  const { coupons, addCoupon, toggleCoupon, deleteCoupon, fetchAdminCoupons } = useCouponStore();
+
+  useEffect(() => {
+    fetchAdminCoupons();
+  }, [fetchAdminCoupons]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [filterTab, setFilterTab] = useState('ALL');

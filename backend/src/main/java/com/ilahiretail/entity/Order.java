@@ -53,6 +53,22 @@ public class Order {
     @Column(name = "delivery_state", nullable = false, length = 100)
     private String deliveryState;
 
+    @Column(name = "coupon_code", length = 50)
+    private String couponCode;
+
+    @Column(name = "discount_amount", precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+
+    @Column(name = "courier_name", length = 100)
+    private String courierName;
+
+    @Column(name = "tracking_number", length = 100)
+    private String trackingNumber;
+
+    @Column(name = "order_notes", columnDefinition = "TEXT")
+    private String orderNotes;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();

@@ -90,6 +90,9 @@ public class SecurityConfig {
                         // Public Catalog Browsing
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/coupons/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/settings/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                         // Uploaded static files
                         .requestMatchers("/uploads/**").permitAll()
                         // Swagger & OpenAPI documentation

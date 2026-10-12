@@ -99,7 +99,12 @@ export const CheckoutPage = () => {
         console.error('Failed to save address locally', e);
       }
 
-      const res = await api.post('/orders/checkout', data);
+      const payload = {
+        ...data,
+        couponCode: appliedCoupon?.code || null,
+      };
+
+      const res = await api.post('/orders/checkout', payload);
       if (res.data?.success) {
         reset(); // Clear frontend cart store
         toast.success('Order placed successfully via Cash on Delivery!');

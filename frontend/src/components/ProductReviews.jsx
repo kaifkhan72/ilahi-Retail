@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle, ThumbsUp, MessageSquare, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
 
 const INITIAL_REVIEWS_SEED = [
@@ -49,37 +50,76 @@ export const ProductReviews = ({ productId, productName }) => {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
 
+  useEffect(() => {
+    const fetchServerReviews = async () => {
+      try {
+        const res = await api.get(`/reviews/product/${productId}`);
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const mapped = res.data.data.map((r) => ({
+            id: r.id,
+            userName: r.userName || 'Customer',
+            rating: r.rating,
+            date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'Recent',
+            verified: true,
+            comment: r.comment,
+          }));
+          setReviews(mapped);
+        }
+      } catch (err) {
+        // Fallback to local / seed reviews
+      }
+    };
+    if (productId) {
+      fetchServerReviews();
+    }
+  }, [productId]);
+
   const averageRating = (
     reviews.reduce((acc, r) => acc + r.rating, 0) / (reviews.length || 1)
   ).toFixed(1);
 
-  const handleSubmitReview = (e) => {
+  const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (!comment.trim()) {
       toast.error('Please write a brief comment');
       return;
     }
 
-    const newReview = {
-      id: Date.now(),
-      userName: user?.name || 'Anonymous Customer',
-      rating,
-      date: 'Just now',
-      verified: true,
-      comment: comment.trim(),
-    };
-
-    const updated = [newReview, ...reviews];
-    setReviews(updated);
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(updated));
-    } catch (e) {
-      console.error(e);
+    if (!isAuthenticated) {
+      toast.error('Please login to post a verified customer review');
+      return;
     }
 
-    toast.success('Thank you! Your verified review was posted.', { icon: '⭐' });
-    setComment('');
-    setIsWriting(false);
+    try {
+      const res = await api.post(`/reviews/product/${productId}`, {
+        rating,
+        comment: comment.trim(),
+      });
+
+      const serverReview = res.data?.data;
+      const newReview = {
+        id: serverReview?.id || Date.now(),
+        userName: serverReview?.userName || user?.name || 'Customer',
+        rating,
+        date: 'Just now',
+        verified: true,
+        comment: comment.trim(),
+      };
+
+      const updated = [newReview, ...reviews];
+      setReviews(updated);
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+      } catch (err) {
+        console.error(err);
+      }
+
+      toast.success('Thank you! Your verified review was posted to Ilahi Retail.', { icon: '⭐' });
+      setComment('');
+      setIsWriting(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit review');
+    }
   };
 
   return (

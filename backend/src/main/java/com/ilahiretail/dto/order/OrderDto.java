@@ -30,6 +30,12 @@ public class OrderDto {
     private String deliveryPincode;
     private String deliveryState;
 
+    private String couponCode;
+    private BigDecimal discountAmount;
+    private String courierName;
+    private String trackingNumber;
+    private String orderNotes;
+
     @Builder.Default
     private List<OrderItemDto> items = new ArrayList<>();
 

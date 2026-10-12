@@ -52,4 +52,13 @@ public class AdminOrderController {
         OrderDto order = orderService.updateOrderStatus(id, request.getStatus());
         return ResponseEntity.ok(ApiResponse.success("Order status updated successfully", order));
     }
+
+    @PatchMapping("/{id}/tracking")
+    @Operation(summary = "Update courier name, AWB tracking number and notes")
+    public ResponseEntity<ApiResponse<OrderDto>> updateOrderTracking(
+            @PathVariable Long id,
+            @RequestBody com.ilahiretail.dto.order.OrderTrackingUpdateRequest request) {
+        OrderDto order = orderService.updateOrderTracking(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Order tracking details updated successfully", order));
+    }
 }

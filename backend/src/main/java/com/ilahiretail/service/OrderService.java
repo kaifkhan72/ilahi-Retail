@@ -18,6 +18,7 @@ public interface OrderService {
     PageResponse<OrderDto> getAllOrders(OrderStatus status, Pageable pageable);
     OrderDto getAdminOrderById(Long orderId);
     OrderDto updateOrderStatus(Long orderId, OrderStatus status);
+    OrderDto updateOrderTracking(Long orderId, com.ilahiretail.dto.order.OrderTrackingUpdateRequest request);
     AdminDashboardDto getDashboardStats();
     PageResponse<CustomerSummaryDto> getAllCustomers(Pageable pageable);
 }
