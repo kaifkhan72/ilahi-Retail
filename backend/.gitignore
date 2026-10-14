@@ -4,3 +4,9 @@ apache-maven-*/
 .idea/
 *.iml
 .vscode/
+
+# Environment files
+.env
+*.env
+.env.*
+
