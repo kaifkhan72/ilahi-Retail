@@ -4,7 +4,7 @@ import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Truck } f
 import toast from 'react-hot-toast';
 import { useCartStore } from '../store/cartStore';
 import { useSettingsStore } from '../store/settingsStore';
-import { formatPrice } from '../utils/formatters';
+import { formatPrice, getImageUrl, getProductFallbackImage } from '../utils/formatters';
 
 export const CartDrawer = () => {
   const navigate = useNavigate();
@@ -147,23 +147,16 @@ export const CartDrawer = () => {
                 const product = item.product;
                 return (
                   <div key={item.id} className="py-4 flex space-x-4">
-                    {/* Thumbnail */}
                     <div className="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden shrink-0 border border-gray-100 relative">
-                      {product?.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=200&auto=format&fit=crop&q=60';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <ShoppingBag className="w-6 h-6 stroke-1" />
-                        </div>
-                      )}
+                      <img
+                        src={getImageUrl(product?.imageUrl, product?.category?.name, product?.name)}
+                        alt={product?.name || 'Product'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = getProductFallbackImage(product?.category?.name, product?.name);
+                        }}
+                      />
                     </div>
 
                     {/* Details */}

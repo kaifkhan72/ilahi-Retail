@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Heart, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { formatPrice } from '../utils/formatters';
+import { formatPrice, getImageUrl, getProductFallbackImage } from '../utils/formatters';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
@@ -56,21 +56,15 @@ export const ProductCard = ({ product }) => {
   return (
     <div className="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col">
       <Link to={`/products/${product.id}`} className="block relative aspect-square bg-gray-100 overflow-hidden">
-        {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500&auto=format&fit=crop&q=60';
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100">
-            <ShoppingBag className="w-12 h-12 stroke-1" />
-          </div>
-        )}
+        <img
+          src={getImageUrl(product.imageUrl, product.category?.name, product.name)}
+          alt={product.name}
+          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = getProductFallbackImage(product.category?.name, product.name);
+          }}
+        />
 
         {/* Category Tag */}
         <div className="absolute top-2.5 left-2.5">

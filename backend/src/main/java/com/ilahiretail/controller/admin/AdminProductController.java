@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/admin/products")
 @RequiredArgsConstructor
@@ -79,5 +81,15 @@ public class AdminProductController {
             @Valid @RequestBody StockUpdateRequest request) {
         ProductDto product = productService.updateStock(id, request.getStock());
         return ResponseEntity.ok(ApiResponse.success("Product stock updated successfully", product));
+    }
+
+    @PatchMapping("/{id}/image")
+    @Operation(summary = "Update product image URL")
+    public ResponseEntity<ApiResponse<ProductDto>> updateImage(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        String imageUrl = request.get("imageUrl");
+        ProductDto product = productService.updateImage(id, imageUrl);
+        return ResponseEntity.ok(ApiResponse.success("Product image updated successfully", product));
     }
 }

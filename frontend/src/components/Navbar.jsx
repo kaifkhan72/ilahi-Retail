@@ -6,7 +6,7 @@ import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useSettingsStore } from '../store/settingsStore';
 import api from '../services/api';
-import { formatPrice } from '../utils/formatters';
+import { formatPrice, getImageUrl, getProductFallbackImage } from '../utils/formatters';
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -171,9 +171,13 @@ export const Navbar = () => {
                       >
                         <div className="flex items-center space-x-3 min-w-0">
                           <img
-                            src={item.imageUrl || 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=100&auto=format&fit=crop&q=60'}
+                            src={getImageUrl(item.imageUrl, item.category?.name, item.name)}
                             alt={item.name}
                             className="w-9 h-9 object-cover rounded-lg bg-gray-100 shrink-0"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = getProductFallbackImage(item.category?.name, item.name);
+                            }}
                           />
                           <div className="truncate">
                             <p className="text-xs font-semibold text-gray-900 group-hover:text-emerald-600 truncate transition">

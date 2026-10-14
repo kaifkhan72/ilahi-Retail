@@ -4,7 +4,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck } from 'lucide-reac
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, getImageUrl, getProductFallbackImage } from '../../utils/formatters';
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -113,9 +113,13 @@ export const CartPage = () => {
               className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 shadow-sm"
             >
               <img
-                src={item.productImageUrl || 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=200&auto=format&fit=crop&q=60'}
+                src={getImageUrl(item.productImageUrl, '', item.productName)}
                 alt={item.productName}
                 className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl bg-gray-100 shrink-0"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = getProductFallbackImage('', item.productName);
+                }}
               />
 
               <div className="flex-1 w-full space-y-1">

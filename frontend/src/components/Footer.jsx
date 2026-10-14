@@ -77,7 +77,6 @@ export const Footer = () => {
             <li><Link to="/cart" className="hover:text-emerald-400 transition">Shopping Cart</Link></li>
             <li><Link to="/orders" className="hover:text-emerald-400 transition">Track Orders</Link></li>
             <li><Link to="/profile" className="hover:text-emerald-400 transition">My Account</Link></li>
-            <li><Link to="/admin/login" className="hover:text-emerald-400 transition">Admin Portal</Link></li>
           </ul>
         </div>
 

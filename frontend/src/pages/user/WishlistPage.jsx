@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, getImageUrl, getProductFallbackImage } from '../../utils/formatters';
 
 export const WishlistPage = () => {
   const navigate = useNavigate();
@@ -95,21 +95,15 @@ export const WishlistPage = () => {
             >
               <div className="relative aspect-square bg-gray-100 overflow-hidden">
                 <Link to={`/products/${product.id}`} className="block w-full h-full">
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500&auto=format&fit=crop&q=60';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <ShoppingBag className="w-12 h-12 stroke-1" />
-                    </div>
-                  )}
+                  <img
+                    src={getImageUrl(product.imageUrl, product.category?.name, product.name)}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = getProductFallbackImage(product.category?.name, product.name);
+                    }}
+                  />
                 </Link>
 
                 <div className="absolute top-2.5 left-2.5">

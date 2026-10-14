@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, ShieldCheck, Truck, RotateCcw, Plus, Minus, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice, getImageUrl, getProductFallbackImage } from '../../utils/formatters';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
@@ -111,21 +111,15 @@ export const ProductDetailPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 bg-white p-6 sm:p-10 rounded-3xl border border-gray-200 shadow-sm">
         {/* Product Image */}
         <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden relative">
-          {product.imageUrl ? (
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full h-full object-cover object-center"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=700&auto=format&fit=crop&q=80';
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
-              <ShoppingBag className="w-20 h-20 stroke-1" />
-            </div>
-          )}
+          <img
+            src={getImageUrl(product.imageUrl, product.category?.name, product.name)}
+            alt={product.name}
+            className="w-full h-full object-cover object-center"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = getProductFallbackImage(product.category?.name, product.name);
+            }}
+          />
 
           <div className="absolute top-4 left-4">
             <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-white/95 backdrop-blur-sm rounded-full text-emerald-700 shadow-sm border border-gray-200">

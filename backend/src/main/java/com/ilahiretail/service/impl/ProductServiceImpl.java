@@ -125,7 +125,8 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(request.getStock());
         product.setCategory(category);
         if (request.getImageUrl() != null) {
-            product.setImageUrl(request.getImageUrl());
+            String sanitized = request.getImageUrl().trim();
+            product.setImageUrl(sanitized.isEmpty() ? null : sanitized);
         }
         if (request.getActive() != null) {
             product.setActive(request.getActive());
@@ -149,6 +150,16 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
         product.setStock(stock);
+        return mapToDto(productRepository.save(product));
+    }
+
+    @Override
+    @Transactional
+    public ProductDto updateImage(Long id, String imageUrl) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
+        String sanitized = (imageUrl != null && !imageUrl.trim().isEmpty()) ? imageUrl.trim() : null;
+        product.setImageUrl(sanitized);
         return mapToDto(productRepository.save(product));
     }
 

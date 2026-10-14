@@ -15,4 +15,5 @@ public interface ProductService {
     ProductDto updateProduct(Long id, ProductUpdateRequest request);
     void softDeleteProduct(Long id);
     ProductDto updateStock(Long id, Integer stock);
+    ProductDto updateImage(Long id, String imageUrl);
 }
