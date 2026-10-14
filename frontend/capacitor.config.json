@@ -1,0 +1,10 @@
+{
+  "appId": "com.ilahiretail.app",
+  "appName": "Ilahi Retail",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
