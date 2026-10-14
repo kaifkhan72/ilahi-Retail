@@ -16,3 +16,10 @@ export const formatDate = (dateString) => {
     timeStyle: 'short',
   }).format(date);
 };
+
+export const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+  return `${backendUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+};

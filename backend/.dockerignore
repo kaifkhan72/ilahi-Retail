@@ -1,0 +1,7 @@
+target/
+.git
+.gitignore
+*.bat
+*.ps1
+apache-maven-3.9.6/
+uploads/

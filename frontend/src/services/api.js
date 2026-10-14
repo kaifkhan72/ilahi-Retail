@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE,
   withCredentials: true, // Crucial for sending HttpOnly refreshToken cookies
 });
 
@@ -59,7 +61,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshResponse = await axios.post('/api/v1/auth/refresh', {}, { withCredentials: true });
+        const refreshResponse = await axios.post(`${API_BASE}/auth/refresh`, {}, { withCredentials: true });
         const { accessToken, user } = refreshResponse.data.data;
 
         useAuthStore.getState().setAuth(accessToken, user);
